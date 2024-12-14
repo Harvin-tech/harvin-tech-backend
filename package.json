@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec npm run pdev",
     "pdev": "tsc && dotenvx run -- node dist/server.js",
-    "build": "tsc",
+    "build": "tsc && ls -R dist",
     "start": "node dist/server.js",
     "format": "npx prettier . --write"
   },
