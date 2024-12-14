@@ -6,9 +6,11 @@ import autoload from '@fastify/autoload';
 import { IncomingMessage, Server, ServerResponse } from 'http';
 import { globalErrorHandler } from './utils/error.utils';
 import { generateSwaggerApiDocs } from './utils/swagger-docs';
+import cookiePlugin from './plugin/cookie.plugin';
+import { AuthMiddleware } from './middleware/auth.middleware';
 
 const app = Fastify<Server, IncomingMessage, ServerResponse>({
-  logger: true,
+  logger: false,
 });
 
 const appService = (app: FastifyInstance) => {
@@ -37,6 +39,12 @@ const appService = (app: FastifyInstance) => {
       prefix: '/',
     },
   });
+
+  // Register cookie plugin
+  app.register(cookiePlugin);
+
+  // Register authentication middleware
+  app.addHook('preHandler', AuthMiddleware.authenticate);
 
   globalErrorHandler(app);
 };

@@ -10,6 +10,7 @@ export const userSchema = new Schema(
     loginMethod: {
       type: Number,
       enum: [1, 2, 3, 4, 5], // 1 = email, 2 = google, 3 = github, 4 = linkedin, 5 = twitter
+      default: 1,
       required: true,
     },
     password: {
@@ -51,7 +52,7 @@ export const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'admin', 'teacher', ''],
+      enum: ['student', 'admin', 'teacher', 'super-admin'],
       default: 'student',
     },
     socialId: {
