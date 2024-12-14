@@ -1,7 +1,8 @@
 import app from './app';
 import { mongoDbConnection } from './config/db.config';
+import { ENV } from './config/env';
 
-const PORT = Number(process.env.PORT) || 8082;
+const PORT = ENV.PORT;
 const Package = require('../package.json');
 
 let client = {
@@ -36,7 +37,7 @@ app.listen(
     await startDatabase();
 
     console.info('Server Started', {
-      environment: process.env.NODE_ENV || 'development',
+      environment: ENV.NODE_ENV,
       version: Package.version,
       port: PORT,
       host: '0.0.0.0',

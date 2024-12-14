@@ -5,6 +5,7 @@ import {
   NOT_FOUND,
 } from '../types/errors.type';
 import { createError } from '../hooks';
+import { ENV } from '../config/env';
 
 export class CustomError extends Error {
   name: string;
@@ -25,7 +26,7 @@ export class CustomError extends Error {
     this.statusCode = statusCode;
 
     // capturing the stack trace keeps the reference to your error class
-    if (process.env.NODE_ENV !== 'production')
+    if (ENV.NODE_ENV !== 'production')
       Error.captureStackTrace(this, this.constructor);
 
     // Exrta data

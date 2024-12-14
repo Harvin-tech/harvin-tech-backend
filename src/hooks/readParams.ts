@@ -1,4 +1,4 @@
-import { FastifyRequest } from "fastify"
+import { FastifyRequest } from 'fastify';
 
 /**
  * Reads the URL parameters from the Fastify request object and
@@ -9,5 +9,5 @@ import { FastifyRequest } from "fastify"
  * @returns {T} - The request parameters cast to type T.
  */
 export default function readParams<T>(request: FastifyRequest): T {
-  return request.params as T
+  return request.params as T;
 }

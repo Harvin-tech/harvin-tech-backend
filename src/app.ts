@@ -8,6 +8,7 @@ import { globalErrorHandler } from './utils/error.utils';
 import { generateSwaggerApiDocs } from './utils/swagger-docs';
 import cookiePlugin from './plugin/cookie.plugin';
 import { AuthMiddleware } from './middleware/auth.middleware';
+import { ENV } from './config/env';
 
 const app = Fastify<Server, IncomingMessage, ServerResponse>({
   logger: false,
@@ -17,8 +18,8 @@ const appService = (app: FastifyInstance) => {
   generateSwaggerApiDocs(app);
 
   let allowed_origins: string[] = [];
-  allowed_origins = String(process.env.ALLOWED_ORIGINS || '').split(',');
-  console.log(allowed_origins);
+  allowed_origins = String(ENV.ALLOWED_ORIGINS).split(',');
+  console.log('allowed_origins', allowed_origins);
 
   app.register(fastifyCors, {
     origin: allowed_origins,

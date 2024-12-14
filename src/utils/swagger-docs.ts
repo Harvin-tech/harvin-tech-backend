@@ -1,6 +1,7 @@
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import { FastifyInstance } from 'fastify';
+import { ENV } from '../config/env';
 
 export const generateSwaggerApiDocs = (app: FastifyInstance) => {
   app.register(fastifySwagger, {
@@ -10,7 +11,7 @@ export const generateSwaggerApiDocs = (app: FastifyInstance) => {
         description: 'API documentation for infyrel application',
         version: '1.0.0',
       },
-      host: `localhost:${process.env.PORT || 8082}`,
+      host: `localhost:${ENV.PORT}`,
       schemes: ['http'],
       consumes: ['application/json'],
       produces: ['application/json'],

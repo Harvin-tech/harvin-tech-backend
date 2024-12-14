@@ -1,4 +1,3 @@
-// src/utils/bcryptHelper.ts
 import bcrypt from 'bcryptjs';
 
 export class BcryptHelper {
@@ -8,7 +7,7 @@ export class BcryptHelper {
   }
 
   static async comparePassword(
-    plainPassword: string, 
+    plainPassword: string,
     hashedPassword: string
   ): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);

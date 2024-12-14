@@ -1,6 +1,7 @@
-// src/middleware/authMiddleware.ts
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { TokenService } from '../services/token.service';
+import { createError } from '../hooks';
+import { UNAUTHORIZED } from '../types/errors.type';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -18,24 +19,26 @@ export class AuthMiddleware {
     }
 
     if (privateRoute) {
-      try {
-        const token = request.cookies.token;
-        if (!token) {
-          throw new Error('Authentication token missing');
-        }
-
-        const decoded = TokenService.verifyToken(token);
-
-        if (!decoded) {
-          return reply.status(401).send({
-            message: 'Invalid token',
-          });
-        }
-
-        request.user = decoded;
-      } catch (err) {
-        reply.status(401).send({ message: 'Unauthorized' });
+      const token = request.cookies.token;
+      if (!token) {
+        throw createError(
+          UNAUTHORIZED.name,
+          UNAUTHORIZED.status,
+          UNAUTHORIZED.message
+        );
       }
+
+      const decoded = TokenService.verifyToken(token);
+
+      if (!decoded) {
+        throw createError(
+          UNAUTHORIZED.name,
+          UNAUTHORIZED.status,
+          UNAUTHORIZED.message
+        );
+      }
+
+      request.user = decoded;
     }
   }
 }

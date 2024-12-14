@@ -1,11 +1,13 @@
-// src/config/env.ts
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 export const ENV = {
-  PORT: process.env.PORT || 3000,
+  PORT: Number(process.env.PORT) || 8082,
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  COOKIE_SECRET: process.env.COOKIE_SECRET || 'your-cookie-secret',
   JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret',
   JWT_EXPIRATION: process.env.JWT_EXPIRATION || '1h',
-  DATABASE_URL: process.env.DATABASE_URL || 'mongodb://localhost:27017/myapp',
+  MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/myapp',
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'http://localhost:3002',
 };

@@ -2,7 +2,7 @@ import { CustomError } from '../utils/error.utils';
 
 /**
  * Creates a new instance of CustomError with the provided details.
- * 
+ *
  * @param name - The name of the error.
  * @param statusCode - The HTTP status code associated with the error.
  * @param message - The error message.

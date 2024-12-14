@@ -1,4 +1,4 @@
-import { FastifyRequest } from "fastify"
+import { FastifyRequest } from 'fastify';
 
 /**
  * Extracts the query parameters from the request and returns them as
@@ -9,5 +9,5 @@ import { FastifyRequest } from "fastify"
  * @returns {T} - The query parameters as the specified type T.
  */
 export default function readQuery<T>(request: FastifyRequest): T {
-    return request.query as T;
+  return request.query as T;
 }

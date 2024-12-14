@@ -35,8 +35,6 @@ export default async function healthRoutes(app: FastifyInstance, opts: any) {
     // Determine overall health
     const overallStatus = mongoHealth.status ? 200 : 503;
 
-    console.log('HEALTH CHECK', JSON.stringify(checks, null, 2));
-
     return reply.status(overallStatus).send({
       status: overallStatus,
       message:
