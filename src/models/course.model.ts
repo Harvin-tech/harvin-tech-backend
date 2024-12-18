@@ -10,7 +10,7 @@ export const courseSchema = new Schema(
     price: { type: Number, default: 0 },
     level: { type: String },
     mrp: { type: Number, default: 0 },
-    description: { type: String },
+    description: { type: String, required: true },
     status: {
       type: Number,
       enum: [0, 1, -1],
