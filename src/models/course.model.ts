@@ -2,7 +2,7 @@ import { Schema, Types } from 'mongoose';
 
 export const courseSchema = new Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: true, unique: true },
     subTitle: { type: String, default: null },
     image: { type: String, default: null },
     category: { type: String, required: true },
@@ -10,7 +10,7 @@ export const courseSchema = new Schema(
     price: { type: Number, default: 0 },
     level: { type: String },
     mrp: { type: Number, default: 0 },
-    description: { type: String },
+    description: { type: String, required: true },
     status: {
       type: Number,
       enum: [0, 1, -1],
