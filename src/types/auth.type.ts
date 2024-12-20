@@ -17,4 +17,3 @@ export interface tokenUserSign_I {
   email: string;
   role: string;
 }
-

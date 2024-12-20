@@ -1,10 +1,13 @@
-import { FastifyInstance } from "fastify";
-import { CourseController } from "../../../controllers/course.controller";
-import { addCourseSchema, getCourseSchema } from "../../../schema/course.schema";
+import { FastifyInstance } from 'fastify';
+import { CourseController } from '../../../controllers/course.controller';
+import {
+  addCourseSchema,
+  getCourseSchema,
+} from '../../../schema/course.schema';
 
 export default async function addCourseRoute(app: FastifyInstance) {
-  app.get('/getCourse', getCourseSchema, CourseController.getCourse);
-  app.post('/addCourse', addCourseSchema, CourseController.addCourse);
+  app.get('/', getCourseSchema, CourseController.getCourse);
+  app.post('/', addCourseSchema, CourseController.addCourse);
 }
 
 //   question :  why schema adding in route file ?

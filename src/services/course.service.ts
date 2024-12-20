@@ -1,62 +1,71 @@
-import { createError } from "../hooks";
-import { Course } from "../models";
-import { addCourse_I, getCourse_I } from "../types/course.type";
+import { createError } from '../hooks';
+import { Course } from '../models';
+import { addCourse_I, getCourse_I } from '../types/course.type';
 
 export class CourseService {
-    static async addCourse(requestBody: addCourse_I) {
-        const isCourseExist = await Course.findOne({ title: requestBody.title });
-        if (isCourseExist) {
-            throw createError(
-                'COURSE_ALREADY_EXISTS',
-                400,
-                'Course already exists'
-            );
-        }
-        const course = new Course(requestBody);
-        await course.save();
+  static async addCourse(requestBody: addCourse_I) {
+    const isCourseExist = await Course.findOne({ title: requestBody.title });
 
-        const response = {
-            course: { ...course },
-        }
-        return response;
-
+    if (isCourseExist) {
+      throw createError('COURSE_ALREADY_EXISTS', 400, 'Course already exists');
     }
-    static async getCourse(query: getCourse_I) {
-        const courseQuery = query.query;
-        const page = query.page || 1;
-        const limit = query.limit || 10;
-        const skip = (page - 1) * limit;
 
-        const [courses, total] = await Promise.all([
-            Course.find(courseQuery)
-                .skip(skip)
-                .limit(limit),
-            Course.countDocuments(courseQuery)
-        ]);
-        if (!courses) {
-            throw createError(
-                'COURSE_NOT_FOUND',
-                404,
-                'Course not found'
-            );
-        }
+    const course = new Course(requestBody);
 
-        return {
-            courses,
-            pagination: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit)
-            }
-        };
+    await course.save();
+
+    return { course: course['_doc'] };
+  }
+
+  static async getAllCourse(query: getCourse_I) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      status,
+      category,
+      minPrice,
+      maxPrice,
+      level,
+    } = query;
+
+    let filter: any = {};
+
+    if (search) {
+      filter.title = { $regex: search, $options: 'i' }; // Case-insensitive on title
     }
-    // Get first page with 10 items
-    // await CourseService.getCourse({ query: {} });
 
-    // Get second page with 20 items
-    // await CourseService.getCourse({ query: {}, page: 2, limit: 20 });
+    if (status) {
+      filter.status = status; // Add status filter if provided
+    }
 
-    // Get first page of courses in a specific category
-    // await CourseService.getCourse({ query: { category: 'programming' }, page: 1, limit: 10 });
-}   
+    if (category) {
+      filter.category = category; // Add category filter if provided
+    }
+
+    if (minPrice || maxPrice) {
+      const mp = minPrice || 0;
+      const mxp = maxPrice || Infinity;
+      filter.price = { $gte: mp, $lte: mxp };
+    }
+
+    const skip = (page - 1) * limit;
+
+    if (level) {
+      filter.level = level; // Add level filter if provided
+    }
+
+    const [courses, total] = await Promise.all([
+      Course.find(filter).skip(skip).limit(limit),
+      Course.countDocuments(filter),
+    ]);
+
+    const result = {
+      course: courses || [],
+      total,
+      maxPages: Math.ceil(total / limit),
+    };
+
+    return result;
+  }
+}
