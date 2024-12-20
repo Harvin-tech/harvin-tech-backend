@@ -1,13 +1,18 @@
 import { createError } from '../hooks';
 import { Course } from '../models';
 import { addCourse_I, getCourse_I } from '../types/course.type';
+import { BAD_REQUEST } from '../types/errors.type';
 
 export class CourseService {
   static async addCourse(requestBody: addCourse_I) {
     const isCourseExist = await Course.findOne({ title: requestBody.title });
 
     if (isCourseExist) {
-      throw createError('COURSE_ALREADY_EXISTS', 400, 'Course already exists');
+      throw createError(
+        BAD_REQUEST.name,
+        BAD_REQUEST.status,
+        'Course already exists'
+      );
     }
 
     const course = new Course(requestBody);
@@ -67,5 +72,61 @@ export class CourseService {
     };
 
     return result;
+  }
+
+  static async updateCourseById(courseId: string, requestBody: any) {
+    const { title } = requestBody;
+    // Find the course by ID and update it
+    const isCourseExist = await Course.findOne({ _id: courseId });
+
+    if (!isCourseExist) {
+      throw createError(
+        BAD_REQUEST.name,
+        BAD_REQUEST.status,
+        'Course not found'
+      );
+    }
+
+    if (title) {
+      const isTitleExist = await Course.findOne({ title });
+
+      if (isTitleExist) {
+        throw createError(
+          BAD_REQUEST.name,
+          BAD_REQUEST.status,
+          'Title already exists'
+        );
+      }
+    }
+
+    const course = await Course.findOneAndUpdate(
+      { _id: courseId },
+      { $set: requestBody },
+      { new: true }
+    );
+
+    if (!course) {
+      throw createError(
+        BAD_REQUEST.name,
+        BAD_REQUEST.status,
+        'Failed to update course'
+      );
+    }
+
+    return { course: course['_doc'] };
+  }
+
+  static async getCourseById(courseId: string) {
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      throw createError(
+        BAD_REQUEST.name,
+        BAD_REQUEST.status,
+        'Course not found'
+      );
+    }
+
+    return course;
   }
 }
