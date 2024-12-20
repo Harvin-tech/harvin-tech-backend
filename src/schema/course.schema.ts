@@ -24,7 +24,7 @@ export const addCourseSchema: Schema = {
         },
         instructor: {
           type: 'string',
-          format: 'objectId', // Assumes ObjectId format for MongoDB
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
           description: 'The ID of the instructor (user reference)',
         },
         price: {
@@ -54,4 +54,13 @@ export const addCourseSchema: Schema = {
       additionalProperties: false, // Disallow unexpected fields
     },
   },
+};
+
+export const getCourseSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+  },
+ 
+
+    
 };
