@@ -3,7 +3,9 @@ import { FastifyRequest } from 'fastify';
 import { readBody, readParams, readQuery, sendResponse } from '../hooks';
 import {
   createCourse_I,
+  enrollCourse_I,
   getCourse_I,
+  getEnrolledCoursesQuery_I,
   updateCourse_I,
 } from '../types/course.type';
 import { CourseService } from '../services/course.service';
@@ -73,6 +75,38 @@ export class CourseController {
       const chapter = await CourseService.getChapterById(chapterId, status);
 
       return sendResponse(reply, 200, 'Chapter fetched successfully', chapter);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async enrollCourse(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestBody = readBody<enrollCourse_I>(request);
+
+      const enroll = await CourseService.enrollCourse(requestBody);
+
+      return sendResponse(reply, 200, 'Course enrolled successfully', enroll);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getEnrolledCourseByUser(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    try {
+      const { userId } = readParams<{ userId: string }>(request); // Extract userId from request params
+
+      const reqQuery = readQuery<getEnrolledCoursesQuery_I>(request);
+
+      const course = await CourseService.getEnrolledCoursesOfUser(
+        userId,
+        reqQuery
+      );
+
+      return sendResponse(reply, 200, 'Course fetched successfully', course);
     } catch (error) {
       throw error;
     }

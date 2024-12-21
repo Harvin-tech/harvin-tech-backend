@@ -57,3 +57,14 @@ export interface updateCourse_I {
   description: string;
   status?: 0 | 1 | -1;
 }
+
+export interface enrollCourse_I {
+  courseId: Types.ObjectId;
+  userId: Types.ObjectId;
+}
+
+export interface getEnrolledCoursesQuery_I {
+  search?: string;
+  page?: number;
+  limit?: number;
+}

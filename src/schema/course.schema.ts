@@ -319,3 +319,69 @@ export const updateCourseSchema: Schema = {
     },
   },
 };
+
+export const enrollCourseSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+    body: {
+      type: 'object',
+      required: ['courseId', 'userId'],
+      properties: {
+        courseId: {
+          type: 'string',
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
+          description: 'The ID of the course to enroll',
+        },
+        userId: {
+          type: 'string',
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
+          description: 'The ID of the user to enroll',
+        },
+      },
+      additionalProperties: false, // Disallow unexpected fields
+    },
+  },
+};
+
+export const getEnrolledCourseByUserSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+    params: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string',
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
+          description: 'The ID of the user to retrieve enrolled courses',
+        },
+      },
+      required: ['userId'], // Fields required for getting enrolled courses by user
+    },
+    query: {
+      type: 'object',
+      properties: {
+        search: {
+          type: 'string',
+          description:
+            'Search keyword to match title or category (case-insensitive)',
+        },
+        page: {
+          type: 'integer',
+          minimum: 1,
+          description: 'The page number for pagination (default: 1)',
+        },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          description: 'The number of items per page (default: 10)',
+        },
+        status: {
+          type: 'integer',
+          enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
+          description: 'Filter courses by status',
+        },
+      },
+      additionalProperties: false, // Disallow unexpected query parameters
+    },
+  },
+};
