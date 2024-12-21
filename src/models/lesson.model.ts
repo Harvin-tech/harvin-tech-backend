@@ -11,13 +11,12 @@ export const lessonSchema = new Schema(
     duration: { type: Number, default: 0 },
     type: {
       type: String,
-      enum: ['video', 'content', 'pdf', 'quiz'],
-      default: 'video',
+      enum: ['video', 'content', 'quiz', 'assignment', 'discussion', 'test'],
     },
     status: {
       type: Number,
       enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
-      default: 0,
+      default: 1,
     },
   },
   { timestamps: true }

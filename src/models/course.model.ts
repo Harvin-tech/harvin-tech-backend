@@ -3,8 +3,8 @@ import { Schema, Types } from 'mongoose';
 export const courseSchema = new Schema(
   {
     title: { type: String, required: true, unique: true },
-    subTitle: { type: String, default: null },
-    image: { type: String, default: null },
+    subTitle: { type: String },
+    image: { type: String },
     category: { type: String, required: true },
     instructor: { type: Types.ObjectId, ref: 'users' },
     price: { type: Number, default: 0 },

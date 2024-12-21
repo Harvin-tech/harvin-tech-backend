@@ -10,5 +10,5 @@ export const User = model('users', userSchema);
 export const Course = model('courses', courseSchema);
 export const Chapter = model('chapters', chapterSchema);
 export const Lesson = model('lessons', lessonSchema);
-export const enrollment = model('enrollments', enrollmentSchema);
+export const Enrollment = model('enrollments', enrollmentSchema);
 export const Media = model('medias', mediaSchema);

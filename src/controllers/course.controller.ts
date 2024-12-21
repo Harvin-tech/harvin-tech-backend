@@ -1,16 +1,22 @@
 import { FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 import { readBody, readParams, readQuery, sendResponse } from '../hooks';
-import { addCourse_I, getCourse_I, updateCourse_I } from '../types/course.type';
+import {
+  createCourse_I,
+  enrollCourse_I,
+  getCourse_I,
+  getEnrolledCoursesQuery_I,
+  updateCourse_I,
+} from '../types/course.type';
 import { CourseService } from '../services/course.service';
 
 export class CourseController {
   static async addCourse(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const requestBody = readBody<addCourse_I>(request);
-      console.log('dsfghjkl', readBody);
+      const requestBody = readBody<createCourse_I>(request);
+      console.log('dsfghjkl', requestBody);
 
-      const course = await CourseService.addCourse(requestBody);
+      const course = await CourseService.createCourse(requestBody);
 
       return sendResponse(reply, 200, 'Course added successfully', course);
     } catch (error) {
@@ -51,8 +57,54 @@ export class CourseController {
   static async getCourseById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { courseId } = readParams<{ courseId: string }>(request); // Extract userId from request params
+      const { status } = readQuery<{ status: number }>(request);
 
-      const course = await CourseService.getCourseById(courseId);
+      const course = await CourseService.getCourseById(courseId, status);
+
+      return sendResponse(reply, 200, 'Course fetched successfully', course);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getChapterById(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { chapterId } = readParams<{ chapterId: string }>(request); // Extract userId from request params
+      const { status } = readQuery<{ status: number }>(request);
+
+      const chapter = await CourseService.getChapterById(chapterId, status);
+
+      return sendResponse(reply, 200, 'Chapter fetched successfully', chapter);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async enrollCourse(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestBody = readBody<enrollCourse_I>(request);
+
+      const enroll = await CourseService.enrollCourse(requestBody);
+
+      return sendResponse(reply, 200, 'Course enrolled successfully', enroll);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getEnrolledCourseByUser(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    try {
+      const { userId } = readParams<{ userId: string }>(request); // Extract userId from request params
+
+      const reqQuery = readQuery<getEnrolledCoursesQuery_I>(request);
+
+      const course = await CourseService.getEnrolledCoursesOfUser(
+        userId,
+        reqQuery
+      );
 
       return sendResponse(reply, 200, 'Course fetched successfully', course);
     } catch (error) {

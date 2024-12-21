@@ -13,8 +13,9 @@ export const enrollmentSchema = new Schema(
     status: {
       type: Number,
       enum: [0, 1, -1],
-      default: 0,
+      default: 1,
     },
   },
+
   { timestamps: true }
 );

@@ -1,6 +1,25 @@
 import { Types } from 'mongoose';
 
-export interface addCourse_I {
+export interface chapters_I {
+  courseId?: Types.ObjectId;
+  title: string;
+  description: string;
+  status?: 0 | 1 | -1;
+  lessons?: lessons_I[];
+}
+
+export interface lessons_I {
+  chapterId?: Types.ObjectId;
+  title: string;
+  description?: string;
+  image?: string;
+  video?: string;
+  content?: string;
+  duration?: number;
+  type?: string;
+  status?: 0 | 1 | -1;
+}
+export interface createCourse_I {
   title: string;
   subTitle?: string | null;
   image?: string | null;
@@ -11,6 +30,7 @@ export interface addCourse_I {
   mrp?: number;
   description: string;
   status?: 0 | 1 | -1;
+  chapters?: chapters_I[];
 }
 
 export interface getCourse_I {
@@ -36,4 +56,15 @@ export interface updateCourse_I {
   mrp?: number;
   description: string;
   status?: 0 | 1 | -1;
+}
+
+export interface enrollCourse_I {
+  courseId: Types.ObjectId;
+  userId: Types.ObjectId;
+}
+
+export interface getEnrolledCoursesQuery_I {
+  search?: string;
+  page?: number;
+  limit?: number;
 }
