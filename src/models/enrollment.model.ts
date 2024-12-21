@@ -1,6 +1,6 @@
 import { Schema, Types } from 'mongoose';
 
-export const courseEnrolledSchema = new Schema(
+export const enrollmentSchema = new Schema(
   {
     courseId: { type: Types.ObjectId, required: true, ref: 'courses' },
     userId: { type: Types.ObjectId, required: true, ref: 'users' },
