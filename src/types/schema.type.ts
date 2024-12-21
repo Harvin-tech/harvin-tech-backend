@@ -15,6 +15,8 @@ interface SchemaBase {
   enum?: any[];
   minimum?: number;
   maximum?: number;
+  minItems?: number;
+  maxItems?: number;
   minLength?: number;
   maxLength?: number;
   pattern?: string;

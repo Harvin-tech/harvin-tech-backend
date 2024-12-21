@@ -34,7 +34,7 @@ export class AuthController {
         httpOnly: true,
         secure: ENV.NODE_ENV === 'production', // only send over HTTPS in production
         sameSite: 'strict', // protect against CSRF
-        maxAge: 3600, // 1 hour
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       const { password: _password, ...userResponse } = user;

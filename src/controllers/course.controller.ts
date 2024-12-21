@@ -1,16 +1,20 @@
 import { FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 import { readBody, readParams, readQuery, sendResponse } from '../hooks';
-import { addCourse_I, getCourse_I, updateCourse_I } from '../types/course.type';
+import {
+  createCourse_I,
+  getCourse_I,
+  updateCourse_I,
+} from '../types/course.type';
 import { CourseService } from '../services/course.service';
 
 export class CourseController {
   static async addCourse(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const requestBody = readBody<addCourse_I>(request);
-      console.log('dsfghjkl', readBody);
+      const requestBody = readBody<createCourse_I>(request);
+      console.log('dsfghjkl', requestBody);
 
-      const course = await CourseService.addCourse(requestBody);
+      const course = await CourseService.createCourse(requestBody);
 
       return sendResponse(reply, 200, 'Course added successfully', course);
     } catch (error) {

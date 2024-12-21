@@ -1,25 +1,97 @@
+import mongoose from 'mongoose';
 import { createError } from '../hooks';
-import { Course } from '../models';
-import { addCourse_I, getCourse_I } from '../types/course.type';
+import { Chapter, Course, Lesson } from '../models';
+import { createCourse_I, getCourse_I } from '../types/course.type';
 import { BAD_REQUEST } from '../types/errors.type';
 
 export class CourseService {
-  static async addCourse(requestBody: addCourse_I) {
-    const isCourseExist = await Course.findOne({ title: requestBody.title });
+  static async createCourse(body: createCourse_I) {
+    const { chapters, ...restBody } = body;
 
+    const isCourseExist = await Course.findOne({ title: restBody.title });
     if (isCourseExist) {
       throw createError(
         BAD_REQUEST.name,
         BAD_REQUEST.status,
-        'Course already exists'
+        'Course with the same title already exists'
       );
     }
 
-    const course = new Course(requestBody);
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const course = await Course.create(
+        [{ ...restBody, ctfg: 1, status: 1 }],
+        {
+          session,
+        }
+      );
 
-    await course.save();
+      console.log('course--->', course);
+      const courseId = course[0]._id;
 
-    return { course: course['_doc'] };
+      const chapterBulkOps: mongoose.AnyBulkWriteOperation[] = [];
+      const lessonBulkOps: mongoose.AnyBulkWriteOperation[] = [];
+
+      if (!chapters) {
+        throw createError(
+          BAD_REQUEST.name,
+          BAD_REQUEST.status,
+          'At least one Chapters are required'
+        );
+      }
+
+      for (const chapter of chapters) {
+        const chapterId = new mongoose.Types.ObjectId();
+
+        chapterBulkOps.push({
+          insertOne: {
+            document: {
+              _id: chapterId,
+              courseId,
+              title: chapter.title,
+              description: chapter.description,
+            },
+          },
+        });
+
+        if (!chapter.lessons) {
+          throw createError(
+            BAD_REQUEST.name,
+            BAD_REQUEST.status,
+            'At least one Lessons are required'
+          );
+        }
+
+        for (const lesson of chapter.lessons) {
+          lessonBulkOps.push({
+            insertOne: {
+              document: {
+                chapterId,
+                ...lesson,
+              },
+            },
+          });
+        }
+      }
+
+      if (chapterBulkOps.length) {
+        await Chapter.bulkWrite(chapterBulkOps, { session });
+      }
+      if (lessonBulkOps.length) {
+        await Lesson.bulkWrite(lessonBulkOps, { session });
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return course;
+    } catch (error) {
+      console.error('ERROR_CREATE_COURSE', error);
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
 
   static async getAllCourse(query: getCourse_I) {
@@ -117,16 +189,83 @@ export class CourseService {
   }
 
   static async getCourseById(courseId: string) {
-    const course = await Course.findById(courseId);
+    try {
+      // Validate courseId
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        throw createError(
+          BAD_REQUEST.name,
+          BAD_REQUEST.status,
+          'Invalid course ID'
+        );
+      }
 
-    if (!course) {
-      throw createError(
-        BAD_REQUEST.name,
-        BAD_REQUEST.status,
-        'Course not found'
-      );
+      // Aggregation pipeline to fetch the course, its chapters, and lessons
+      const pipeline = [
+        // Step 1: Match the course by ID
+        {
+          $match: { _id: new mongoose.Types.ObjectId(courseId) },
+        },
+        // Step 2: Lookup to join Chapters with the Course
+        {
+          $lookup: {
+            from: 'chapters',
+            localField: '_id',
+            foreignField: 'courseId',
+            as: 'chapters',
+          },
+        },
+        // Step 3: Lookup to join Lessons with the Chapters
+        {
+          $unwind: '$chapters', // Unwind the chapters array to ensure we can process each chapter individually
+        },
+        {
+          $lookup: {
+            from: 'lessons',
+            localField: 'chapters._id',
+            foreignField: 'chapterId',
+            as: 'chapters.lessons', // Store the lessons under the 'lessons' field in each chapter
+          },
+        },
+        // Step 4: Rebuild the chapters array after unwinding
+        {
+          $group: {
+            _id: '$_id', // Group by course _id
+            title: { $first: '$title' },
+            description: { $first: '$description' },
+            price: { $first: '$price' },
+            category: { $first: '$category' },
+            status: { $first: '$status' },
+            chapters: { $push: '$chapters' }, // Push all chapters (including lessons) back into the chapters array
+            createdAt: { $first: '$createdAt' },
+            updatedAt: { $first: '$updatedAt' },
+          },
+        },
+        // Step 5: Project the desired output format
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            price: 1,
+            category: 1,
+            status: 1,
+            chapters: {
+              title: 1,
+              description: 1,
+              status: 1,
+              lessons: 1,
+            },
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      ];
+
+      const courseData = await Course.aggregate(pipeline);
+
+      return courseData[0];
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+      throw error;
     }
-
-    return course;
   }
 }

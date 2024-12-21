@@ -5,6 +5,7 @@ export const addCourseSchema: Schema = {
     tags: ['Courses'], // Categorized as Courses
     body: {
       type: 'object',
+      required: ['title', 'category', 'description', 'chapters'],
       properties: {
         title: {
           type: 'string',
@@ -49,8 +50,71 @@ export const addCourseSchema: Schema = {
           enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
           description: 'The status of the course',
         },
+        chapters: {
+          type: 'array',
+          description: 'List of chapters in the course',
+          items: {
+            type: 'object',
+            required: ['title', 'lessons'],
+            minItems: 1,
+            properties: {
+              title: {
+                type: 'string',
+                description: 'Title of the chapter',
+                minLength: 1,
+              },
+              description: {
+                type: 'string',
+                description: 'Description of the chapter (optional)',
+              },
+              lessons: {
+                type: 'array',
+                description: 'List of lessons in the chapter',
+                minItems: 1,
+                items: {
+                  type: 'object',
+                  required: ['title', 'type'],
+                  properties: {
+                    title: {
+                      type: 'string',
+                      description: 'Title of the lesson',
+                      minLength: 1,
+                    },
+                    content: {
+                      type: 'string',
+                      description: 'Content of the lesson (optional)',
+                    },
+                    video: {
+                      type: 'string',
+                      format: 'uri',
+                      description:
+                        'URL of the video (if the lesson includes a video)',
+                    },
+                    duration: {
+                      type: 'number',
+                      description: 'Duration of the lesson in seconds',
+                    },
+                    type: {
+                      type: 'string',
+                      enum: [
+                        'video',
+                        'content',
+                        'quiz',
+                        'assignment',
+                        'discussion',
+                        'test',
+                      ],
+                      description: 'Type of the lesson',
+                    },
+                  },
+                  additionalProperties: false,
+                },
+              },
+            },
+            additionalProperties: false,
+          },
+        },
       },
-      required: ['title', 'category', 'description'], // Fields required for creating or updating a course
       additionalProperties: false, // Disallow unexpected fields
     },
   },
