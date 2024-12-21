@@ -2,15 +2,12 @@ import { Schema, Types } from 'mongoose';
 
 export const chapterSchema = new Schema(
   {
-    moduleId: { type: Types.ObjectId, required: true, ref: 'modules' },
-    title: { type: String, required: true },
-    description: { type: String, default: null },
-    image: { type: String, default: null },
-    video: { type: String, default: null },
-    content: { type: String, default: null },
+    courseId: { type: Types.ObjectId, required: true, ref: 'courses' },
+    title: { type: String, unique: true, required: true },
+    description: { type: String },
     status: {
       type: Number,
-      enum: [0, 1, -1],
+      enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
       default: 0,
     },
   },

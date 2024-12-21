@@ -8,6 +8,8 @@ export const courseEnrolledSchema = new Schema(
     enrolledAt: { type: Date, default: Date.now },
     startedAt: { type: Date, default: Date.now },
     lastAccessedAt: { type: Date, default: Date.now },
+    expiredAt: { type: Date, default: Date.now },
+    amountPaid: { type: Number, default: 0 },
     status: {
       type: Number,
       enum: [0, 1, -1],
