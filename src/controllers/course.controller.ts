@@ -55,10 +55,24 @@ export class CourseController {
   static async getCourseById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { courseId } = readParams<{ courseId: string }>(request); // Extract userId from request params
+      const { status } = readQuery<{ status: number }>(request);
 
-      const course = await CourseService.getCourseById(courseId);
+      const course = await CourseService.getCourseById(courseId, status);
 
       return sendResponse(reply, 200, 'Course fetched successfully', course);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getChapterById(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { chapterId } = readParams<{ chapterId: string }>(request); // Extract userId from request params
+      const { status } = readQuery<{ status: number }>(request);
+
+      const chapter = await CourseService.getChapterById(chapterId, status);
+
+      return sendResponse(reply, 200, 'Chapter fetched successfully', chapter);
     } catch (error) {
       throw error;
     }

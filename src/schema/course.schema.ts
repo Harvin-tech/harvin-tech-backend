@@ -53,10 +53,10 @@ export const addCourseSchema: Schema = {
         chapters: {
           type: 'array',
           description: 'List of chapters in the course',
+          minItems: 1,
           items: {
             type: 'object',
             required: ['title', 'lessons'],
-            minItems: 1,
             properties: {
               title: {
                 type: 'string',
@@ -162,6 +162,90 @@ export const getCourseSchema: Schema = {
           type: 'integer',
           minimum: 1,
           description: 'The number of items per page (default: 10)',
+        },
+      },
+      additionalProperties: false, // Disallow unexpected query parameters
+    },
+  },
+};
+
+export const getCourseByIDSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+    params: {
+      type: 'object',
+      properties: {
+        courseId: {
+          type: 'string',
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
+          description: 'The ID of the course to retrieve',
+        },
+      },
+      required: ['courseId'], // Fields required for getting a course by ID
+    },
+    query: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'integer',
+          enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
+          description: 'Filter courses by status',
+        },
+      },
+      additionalProperties: false, // Disallow unexpected query parameters
+    },
+  },
+};
+
+export const getChapterByIDSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+    params: {
+      type: 'object',
+      properties: {
+        chapterId: {
+          type: 'string',
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
+          description: 'The ID of the course to retrieve',
+        },
+      },
+      required: ['chapterId'], // Fields required for getting a course by ID
+    },
+    query: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'integer',
+          enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
+          description: 'Filter courses by status',
+        },
+      },
+      additionalProperties: false, // Disallow unexpected query parameters
+    },
+  },
+};
+
+export const getLessonByIDSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+    params: {
+      type: 'object',
+      properties: {
+        lessonId: {
+          type: 'string',
+          pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
+          description: 'The ID of the course to retrieve',
+        },
+      },
+      required: ['lessonId'], // Fields required for getting a course by ID
+    },
+    query: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'integer',
+          enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
+          description: 'Filter courses by status',
         },
       },
       additionalProperties: false, // Disallow unexpected query parameters

@@ -20,12 +20,9 @@ export class CourseService {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const course = await Course.create(
-        [{ ...restBody, ctfg: 1, status: 1 }],
-        {
-          session,
-        }
-      );
+      const course = await Course.create([{ ...restBody }], {
+        session,
+      });
 
       console.log('course--->', course);
       const courseId = course[0]._id;
@@ -188,7 +185,119 @@ export class CourseService {
     return { course: course['_doc'] };
   }
 
-  static async getCourseById(courseId: string) {
+  static async getCourseById(courseId: string, status: number) {
+    try {
+      // Validate courseId
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        throw createError(
+          BAD_REQUEST.name,
+          BAD_REQUEST.status,
+          'Invalid course ID'
+        );
+      }
+
+      // Aggregation pipeline to fetch the course, its chapters, and lessons
+      const pipeline = [
+        // Step 1: Match the course by ID
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(courseId),
+            ...(status ? { status } : {}),
+          },
+        },
+        // Step 2: Lookup to join Chapters with the Course
+        {
+          $lookup: {
+            from: 'chapters',
+            localField: '_id',
+            foreignField: 'courseId',
+            as: 'chapters',
+          },
+        },
+
+        // Step 3: Project the desired output format
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            price: 1,
+            category: 1,
+            status: 1,
+            // chapters: {
+            //   $filter: {
+            //     input: '$chapters', // The chapters array
+            //     as: 'chapter', // Temporary variable name for each chapter
+            //     cond: { $eq: ['$$chapter.status', 1] }, // Condition: status must be 1
+            //   },
+            // },
+            chapters: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      ];
+
+      const courseData = await Course.aggregate(pipeline);
+
+      return courseData[0];
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+      throw error;
+    }
+  }
+
+  static async getChapterById(chapterId: string, status: number) {
+    try {
+      // Validate chapterId
+      if (!mongoose.Types.ObjectId.isValid(chapterId)) {
+        throw createError(
+          BAD_REQUEST.name,
+          BAD_REQUEST.status,
+          'Invalid chapter ID'
+        );
+      }
+
+      // Aggregation pipeline to fetch the chapter and its lessons
+      const pipeline = [
+        // Step 1: Match the chapter by ID
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(chapterId),
+            ...(status ? { status } : {}),
+          },
+        },
+        // Step 2: Lookup to join Lessons with the Chapter
+        {
+          $lookup: {
+            from: 'lessons',
+            localField: '_id',
+            foreignField: 'chapterId',
+            as: 'lessons',
+          },
+        },
+        // Step 3: Project the desired output format
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            status: 1,
+            lessons: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      ];
+
+      const chapterData = await Chapter.aggregate(pipeline);
+
+      return chapterData[0];
+    } catch (error) {
+      console.error('Error fetching chapter data:', error);
+      throw error;
+    }
+  }
+  
+  static async getCourseAllDetailsById(courseId: string) {
     try {
       // Validate courseId
       if (!mongoose.Types.ObjectId.isValid(courseId)) {
