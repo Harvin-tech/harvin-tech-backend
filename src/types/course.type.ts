@@ -68,3 +68,15 @@ export interface getEnrolledCoursesQuery_I {
   page?: number;
   limit?: number;
 }
+
+export interface getEnrolledCourse_I {
+  search?: string;
+  status?: 0 | 1 | -1;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  level?: string;
+  type?: string;
+  page?: number;
+  limit?: number;
+}

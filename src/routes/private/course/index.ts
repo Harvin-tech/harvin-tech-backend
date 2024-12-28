@@ -7,6 +7,7 @@ import {
   getCourseByIDSchema,
   getCourseSchema,
   getEnrolledCourseByUserSchema,
+  getEnrolledCourseSchema,
   getLessonByIDSchema,
   updateCourseSchema,
 } from '../../../schema/course.schema';
@@ -22,7 +23,16 @@ export default async function addCourseRoute(app: FastifyInstance) {
     CourseController.getChapterById
   ); // get course by chapter id Route: GET '/private/course/chapter/:chapterId'
   app.post('/enroll', enrollCourseSchema, CourseController.enrollCourse); // enroll course Route: POST '/private/course/enroll'
-  app.get('/user/:userId', getEnrolledCourseByUserSchema, CourseController.getEnrolledCourseByUser); // get course by user id Route: GET '/private/course/user/:userId'
+  app.get(
+    '/enroll/details',
+    getEnrolledCourseSchema,
+    CourseController.getEnrolledCourseDetails
+  ); // get course details Route: GET '/private/course/enroll/details'
+  app.get(
+    '/user/:userId',
+    getEnrolledCourseByUserSchema,
+    CourseController.getEnrolledCourseByUser
+  ); // get course by user id Route: GET '/private/course/user/:userId'
 }
 
 //   question :  why schema adding in route file ?

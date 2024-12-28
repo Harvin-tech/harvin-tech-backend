@@ -422,6 +422,127 @@ export class CourseService {
     return data;
   }
 
+  static async getEnrolledAllCourse(query: getCourse_I) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      status,
+      category,
+      minPrice,
+      maxPrice,
+      level,
+    } = query;
+
+    const skip = (page - 1) * limit;
+
+    // Build the filter object
+    const filter: any = {};
+
+    if (search) {
+      filter.$or = [
+        { 'userDetails.firstName': { $regex: search, $options: 'i' } }, // Search in user name
+        { 'courseDetails.title': { $regex: search, $options: 'i' } }, // Search in course title
+      ];
+    }
+
+    if (status) {
+      filter['status'] = status; // Filter by enrollment status
+    }
+
+    if (category) {
+      filter['courseDetails.category'] = category; // Filter by course category
+    }
+
+    if (minPrice || maxPrice) {
+      const min = minPrice || 0;
+      const max = maxPrice || Infinity;
+      filter['courseDetails.price'] = { $gte: min, $lte: max }; // Filter by course price
+    }
+
+    if (level) {
+      filter['courseDetails.level'] = level; // Filter by course level
+    }
+
+    const pipeline = [
+      // Step 1: Lookup users to get user details
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userDetails',
+        },
+      },
+      // Step 2: Lookup courses to get course details
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'courseId',
+          foreignField: '_id',
+          as: 'courseDetails',
+        },
+      },
+      // Step 3: Unwind userDetails and courseDetails to access individual objects
+      { $unwind: '$userDetails' },
+      { $unwind: '$courseDetails' },
+      // Step 4: Apply the filters using $match
+      { $match: filter },
+      // Step 5: Use $facet for pagination and count in a single pipeline
+      {
+        $facet: {
+          // Fetch the paginated results
+          data: [
+            { $skip: skip }, // Skip documents for the current page
+            { $limit: limit }, // Limit the number of documents per page
+            {
+              $project: {
+                _id: 0, // Exclude enrollment document ID
+                userId: 1,
+                courseId: 1,
+                overAllProgress: 1,
+                enrolledAt: 1,
+                user: {
+                  id: '$userDetails._id',
+                  name: '$userDetails.firstName',
+                  email: '$userDetails.email',
+                },
+                course: {
+                  id: '$courseDetails._id',
+                  title: '$courseDetails.title',
+                  description: '$courseDetails.description',
+                  price: '$courseDetails.price',
+                  category: '$courseDetails.category',
+                  level: '$courseDetails.level',
+                },
+              },
+            },
+          ],
+          // Get the total count of matching documents
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+    ];
+
+    // Execute the pipeline
+    const result = await Enrollment.aggregate(pipeline);
+
+    console.log('result', JSON.stringify(result, null, 2));
+
+    // Extract the results
+    const enrollments = result[0]?.data || [];
+    const totalCount = result[0]?.totalCount[0]?.total || 0;
+
+    const res = {
+      data: enrollments,
+      total: totalCount,
+      maxPages: Math.ceil(totalCount / limit),
+    };
+
+    // Return the response
+    return res;
+  }
+
   static async getEnrolledCoursesOfUser(
     userId: string,
     query: getEnrolledCoursesQuery_I

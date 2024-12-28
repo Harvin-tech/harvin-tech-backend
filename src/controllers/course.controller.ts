@@ -5,6 +5,7 @@ import {
   createCourse_I,
   enrollCourse_I,
   getCourse_I,
+  getEnrolledCourse_I,
   getEnrolledCoursesQuery_I,
   updateCourse_I,
 } from '../types/course.type';
@@ -88,6 +89,22 @@ export class CourseController {
 
       return sendResponse(reply, 200, 'Course enrolled successfully', enroll);
     } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getEnrolledCourseDetails(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    try {
+      const reqQuery = readQuery<getEnrolledCourse_I>(request);
+
+      const course = await CourseService.getEnrolledAllCourse(reqQuery);
+
+      return sendResponse(reply, 200, 'Course fetched successfully', course);
+    } catch (error) {
+      console.error('ERROR_GET_COURSE', error);
       throw error;
     }
   }
