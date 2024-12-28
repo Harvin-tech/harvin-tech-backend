@@ -3,12 +3,6 @@ import { TokenService } from '../services/token.service';
 import { createError } from '../hooks';
 import { UNAUTHORIZED } from '../types/errors.type';
 
-declare module 'fastify' {
-  interface FastifyRequest {
-    user?: any;
-  }
-}
-
 export class AuthMiddleware {
   static async authenticate(request: FastifyRequest, reply: FastifyReply) {
     const publicRoute = request.url.startsWith('/public');
