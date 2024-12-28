@@ -107,3 +107,31 @@ export const updateUserSchema: Schema = {
     },
   },
 };
+
+export const changePasswordSchema: Schema = {
+  schema: {
+    tags: ['Users'], // Categorized as Auth
+    body: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          format: 'email',
+          description: 'The email of the user',
+        },
+        oldPassword: {
+          type: 'string',
+          minLength: 6,
+          description: 'The old password of the user',
+        },
+        newPassword: {
+          type: 'string',
+          minLength: 6,
+          description: 'The new password of the user',
+        },
+      },
+      required: ['email', 'oldPassword', 'newPassword'],
+      additionalProperties: false, // Disallow unexpected fields
+    },
+  },
+};

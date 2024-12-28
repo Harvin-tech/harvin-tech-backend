@@ -13,7 +13,7 @@ export const registerSchema: Schema = {
         },
         password: {
           type: 'string',
-
+          minLength: 6,
           description: 'The user password, required for email login',
         },
         firstName: {

@@ -1,7 +1,12 @@
 import { createError } from '../hooks';
 import { User as UserModel } from '../models';
 import { BAD_REQUEST } from '../types/errors.type';
-import { getUserQuery_I, updateUser_I } from '../types/user.type';
+import {
+  changePassword_I,
+  getUserQuery_I,
+  updateUser_I,
+} from '../types/user.type';
+import { BcryptHelper } from '../utils/bcryptHelper';
 
 export const UserService = {
   findAllUsers: async (query: getUserQuery_I) => {
@@ -64,5 +69,45 @@ export const UserService = {
     );
 
     return updatedUser;
+  },
+
+  changePassword: async (data: changePassword_I) => {
+    const { email, oldPassword, newPassword } = data;
+
+    // Find the user by email
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      throw createError(BAD_REQUEST.name, BAD_REQUEST.status, 'User not found');
+    }
+
+    // Check if the old password matches
+    const isMatch = await BcryptHelper.comparePassword(
+      oldPassword,
+      user.password
+    );
+
+    const isSamePassword = await BcryptHelper.comparePassword(
+      newPassword,
+      user.password
+    );
+
+    if (!isMatch || isSamePassword) {
+      throw createError(
+        BAD_REQUEST.name,
+        BAD_REQUEST.status,
+        'password does not match'
+      );
+    }
+
+    // Hash the new password
+    const hashedPassword = await BcryptHelper.hashPassword(newPassword);
+
+    const res = UserModel.updateOne(
+      { email },
+      { $set: { password: hashedPassword } }
+    );
+
+    return res;
   },
 };

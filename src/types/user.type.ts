@@ -1,3 +1,9 @@
+export interface requestReadUser_I {
+  id: string;
+  email: string;
+  role: string;
+}
+
 export interface getUserQuery_I {
   page?: number;
   limit?: number;
@@ -18,4 +24,10 @@ export interface updateUser_I {
   gender?: string;
   role?: string;
   status?: number;
+}
+
+export interface changePassword_I {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
 }
