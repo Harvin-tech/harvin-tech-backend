@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec npm run pdev",
     "pdev": "tsc && node dist/server.js",
-    "ts:build": "tsc",
+    "ts:build": "tsc && build --output dist",
     "start": "tsc && node dist/server.js",
     "format": "npx prettier . --write"
   },
