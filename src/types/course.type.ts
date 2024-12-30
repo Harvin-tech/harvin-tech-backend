@@ -25,6 +25,7 @@ export interface createCourse_I {
   image?: string | null;
   category: string;
   instructor: Types.ObjectId; // ObjectId reference to users
+  type: string;
   price?: number;
   level?: string;
   mrp?: number;

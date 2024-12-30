@@ -7,6 +7,11 @@ export const courseSchema = new Schema(
     image: { type: String },
     category: { type: String, required: true },
     instructor: { type: Types.ObjectId, ref: 'users' },
+    type: {
+      type: String,
+      enum: ['free', 'paid'],
+      default: 'free',
+    },
     price: { type: Number, default: 0 },
     level: { type: String },
     mrp: { type: Number, default: 0 },

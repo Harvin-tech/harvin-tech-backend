@@ -108,44 +108,100 @@ export class CourseService {
       level,
     } = query;
 
-    let filter: any = {};
+    const skip = (page - 1) * limit;
+
+    // Build the filter object
+    const matchFilter: any = {};
 
     if (search) {
-      filter.title = { $regex: search, $options: 'i' }; // Case-insensitive on title
+      matchFilter.title = { $regex: search, $options: 'i' }; // Case-insensitive title search
     }
 
     if (status) {
-      filter.status = status; // Add status filter if provided
+      matchFilter.status = status; // Add status filter if provided
     }
 
     if (category) {
-      filter.category = category; // Add category filter if provided
+      matchFilter.category = category; // Add category filter if provided
     }
 
     if (minPrice || maxPrice) {
-      const mp = minPrice || 0;
-      const mxp = maxPrice || Infinity;
-      filter.price = { $gte: mp, $lte: mxp };
+      const min = minPrice || 0;
+      const max = maxPrice || Infinity;
+      matchFilter.price = { $gte: min, $lte: max }; // Filter by price range
     }
-
-    const skip = (page - 1) * limit;
 
     if (level) {
-      filter.level = level; // Add level filter if provided
+      matchFilter.level = level; // Add level filter if provided
     }
 
-    const [courses, total] = await Promise.all([
-      Course.find(filter).skip(skip).limit(limit),
-      Course.countDocuments(filter),
-    ]);
+    // Aggregation pipeline
+    const pipeline = [
+      // Step 1: Match courses with the given filters
+      { $match: matchFilter },
+      // Step 2: Lookup to fetch instructor details
+      {
+        $lookup: {
+          from: 'users', // Name of the users collection
+          localField: 'instructor', // Field in the courses collection
+          foreignField: '_id', // Field in the users collection
+          as: 'instructorDetails', // Output array for instructor details
+        },
+      },
+      // Step 3: Unwind instructorDetails to access individual instructor objects
+      {
+        $unwind: {
+          path: '$instructorDetails',
+          preserveNullAndEmptyArrays: true, // Optional: Keep courses without an instructor
+        },
+      },
+      // Step 4: Use $facet for pagination and total count
+      {
+        $facet: {
+          // Fetch the paginated results
+          data: [
+            { $skip: skip }, // Skip documents for the current page
+            { $limit: limit }, // Limit the number of documents per page
+            {
+              $project: {
+                _id: 1,
+                title: 1,
+                description: 1,
+                price: 1,
+                type: 1,
+                category: 1,
+                level: 1,
+                status: 1,
+                instructor: {
+                  firstName: '$instructorDetails.firstName',
+                  middleName: '$instructorDetails.middleName',
+                  lastName: '$instructorDetails.lastName',
+                  email: '$instructorDetails.email',
+                },
+                createdAt: 1,
+                updatedAt: 1,
+              },
+            },
+          ],
+          // Get the total count of matching documents
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+    ];
 
-    const result = {
-      course: courses || [],
+    // Execute the aggregation pipeline
+    const result = await Course.aggregate(pipeline);
+
+    // Extract results
+    const courses = result[0]?.data || [];
+    const total = result[0]?.totalCount[0]?.total || 0;
+
+    return {
+      courses,
       total,
       maxPages: Math.ceil(total / limit),
+      currentPage: page,
     };
-
-    return result;
   }
 
   static async updateCourseById(courseId: string, requestBody: any) {

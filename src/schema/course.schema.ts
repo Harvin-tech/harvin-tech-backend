@@ -28,6 +28,11 @@ export const addCourseSchema: Schema = {
           pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
           description: 'The ID of the instructor (user reference)',
         },
+        type: {
+          type: 'string',
+          enum: ['paid', 'free'],
+          description: 'The type of the course',
+        },
         price: {
           type: 'number',
           description: 'The price of the course',
@@ -290,6 +295,11 @@ export const updateCourseSchema: Schema = {
           type: 'string',
           pattern: '^[0-9a-fA-F]{24}$', // MongoDB ObjectId pattern (24 hex characters)
           description: 'The ID of the instructor (user reference)',
+        },
+        type: {
+          type: 'string',
+          enum: ['paid', 'free'],
+          description: 'The type of the course',
         },
         price: {
           type: 'number',

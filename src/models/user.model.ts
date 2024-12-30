@@ -52,7 +52,7 @@ export const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'admin', 'teacher', 'super-admin'],
+      enum: ['student', 'admin', 'instructor', 'super-admin'],
       default: 'student',
     },
     socialId: {
