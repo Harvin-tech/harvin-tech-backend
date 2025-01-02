@@ -217,7 +217,7 @@ export class CourseService {
       );
     }
 
-    if (title) {
+    if (title && title !== isCourseExist.title) {
       const isTitleExist = await Course.findOne({ title });
 
       if (isTitleExist) {
