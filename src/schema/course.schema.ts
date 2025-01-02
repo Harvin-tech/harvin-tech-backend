@@ -324,7 +324,6 @@ export const updateCourseSchema: Schema = {
           description: 'The status of the course',
         },
       },
-      required: ['title', 'category', 'description'], // Fields required for creating or updating a course
       additionalProperties: false, // Disallow unexpected fields
     },
   },
