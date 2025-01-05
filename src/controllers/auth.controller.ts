@@ -31,7 +31,7 @@ export class AuthController {
       // Set secure, HTTP-only cookie
       reply.setCookie('token', token, {
         path: '/',
-        httpOnly: true,
+        httpOnly: false, // allow client to access the cookie
         secure: ENV.NODE_ENV === 'production', // only send over HTTPS in production
         sameSite: 'strict', // protect against CSRF
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -50,7 +50,7 @@ export class AuthController {
       // Clear the token cookie
       reply.clearCookie('token', {
         path: '/',
-        httpOnly: true,
+        httpOnly: false,
         secure: ENV.NODE_ENV === 'production',
         sameSite: 'strict',
       });

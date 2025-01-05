@@ -14,4 +14,5 @@ export default async function userRoutes(app: FastifyInstance) {
     changePasswordSchema,
     UserController.changePassword
   ); // change password Route: POST '/private/users/change-password'
+  app.get('/:userId', getUserSchema, UserController.getUserById); // get user by id Route: GET '/private/users/:userId'
 }

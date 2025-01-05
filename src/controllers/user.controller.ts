@@ -41,6 +41,19 @@ export class UserController {
     }
   };
 
+  static getUserById = async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { userId } = readParams<{ userId: string }>(req); // Extract userId from request params
+
+      const user = await UserService.getUserById(userId);
+
+      return sendResponse(reply, 200, 'User fetched successfully', user);
+    } catch (error) {
+      console.error('ERROR_GET_USER_BY_ID', error);
+      throw error;
+    }
+  };
+
   static updateUser = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const { userId } = readParams<{ userId: string }>(req); // Extract userId from request params

@@ -39,6 +39,23 @@ export const getUserSchema: Schema = {
   },
 };
 
+export const getUserByIDSchema: Schema = {
+  schema: {
+    tags: ['Users'], // Categorized as Auth
+    params: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string',
+          description: 'The user ID',
+        },
+      },
+      required: ['userId'],
+      additionalProperties: false, // Disallow unexpected params
+    },
+  },
+};
+
 export const updateUserSchema: Schema = {
   schema: {
     tags: ['Users'], // Categorized as Auth

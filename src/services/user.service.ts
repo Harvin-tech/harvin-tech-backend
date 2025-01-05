@@ -45,6 +45,26 @@ export const UserService = {
     };
   },
 
+  getUserById: async (userId: string) => {
+    // Ensure the userId is provided
+    if (!userId) {
+      throw createError(
+        BAD_REQUEST.name,
+        BAD_REQUEST.status,
+        BAD_REQUEST.message
+      );
+    }
+
+    // Find the user by ID
+    const user = await UserModel.findById(userId).select('-password');
+
+    if (!user) {
+      throw createError(BAD_REQUEST.name, BAD_REQUEST.status, 'User not found');
+    }
+
+    return user;
+  },
+
   updateUserById: async (userId: string, data: updateUser_I) => {
     // Ensure the userId is provided
     if (!userId) {
