@@ -152,3 +152,9 @@ export const changePasswordSchema: Schema = {
     },
   },
 };
+
+export const getUserByToken: Schema = {
+  schema: {
+    tags: ['Users'], // Categorized as Auth
+  },
+};

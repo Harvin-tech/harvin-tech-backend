@@ -13,7 +13,10 @@ export class AuthMiddleware {
     }
 
     if (privateRoute) {
-      const token = request.cookies.token;
+      const authToken = request.cookies.token;
+      const authHeader = request.headers.authorization;
+
+      const token = authToken || authHeader?.split(' ')[1];
       if (!token) {
         throw createError(
           UNAUTHORIZED.name,

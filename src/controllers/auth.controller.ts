@@ -29,17 +29,20 @@ export class AuthController {
       const { user, token } = await AuthService.login(email, password);
 
       // Set secure, HTTP-only cookie
-      reply.setCookie('token', token, {
-        path: '/',
-        httpOnly: false, // allow client to access the cookie
-        secure: ENV.NODE_ENV === 'production', // only send over HTTPS in production
-        sameSite: 'strict', // protect against CSRF
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+      // reply.setCookie('token', token, {
+      //   path: '/',
+      //   httpOnly: false, // allow client to access the cookie
+      //   secure: ENV.NODE_ENV === 'production', // only send over HTTPS in production
+      //   sameSite: 'strict', // protect against CSRF
+      //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      // });
 
       const { password: _password, ...userResponse } = user;
 
-      return sendResponse(reply, 200, 'Login successful', userResponse);
+      return sendResponse(reply, 200, 'Login successful', {
+        user: userResponse,
+        token,
+      });
     } catch (error) {
       throw error;
     }

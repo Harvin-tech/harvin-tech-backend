@@ -94,4 +94,17 @@ export class UserController {
       throw error;
     }
   };
+
+  static getUserByToken = async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id: userId } = readUser<tokenUserSign_I>(req);
+
+      const user = await UserService.getUserById(userId);
+
+      return sendResponse(reply, 200, 'Success', user);
+    } catch (error) {
+      console.error('ERROR_GET_USER_BY_ID_OR_EMAIL', error);
+      throw error;
+    }
+  };
 }

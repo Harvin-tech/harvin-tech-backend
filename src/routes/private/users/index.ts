@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { UserController } from '../../../controllers/user.controller';
 import {
   changePasswordSchema,
+  getUserByToken,
   getUserSchema,
   updateUserSchema,
 } from '../../../schema/user.schema';
@@ -15,4 +16,5 @@ export default async function userRoutes(app: FastifyInstance) {
     UserController.changePassword
   ); // change password Route: POST '/private/users/change-password'
   app.get('/:userId', getUserSchema, UserController.getUserById); // get user by id Route: GET '/private/users/:userId'
+  app.get('/token', getUserByToken, UserController.getUserByToken); // get user by id Route: GET '/private/users/token'
 }
