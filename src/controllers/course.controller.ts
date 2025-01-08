@@ -128,4 +128,25 @@ export class CourseController {
       throw error;
     }
   }
+
+  static async getEnrolledStudentsForCourse(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    try {
+      const reqQuery = readQuery<getEnrolledCourse_I>(request);
+
+      const { courseId } = readParams<{ courseId: string }>(request);
+
+      const course = await CourseService.getEnrolledStudentsForCourse(
+        courseId,
+        reqQuery
+      );
+
+      return sendResponse(reply, 200, 'Course fetched successfully', course);
+    } catch (error) {
+      console.error('ERROR_GET_COURSE', error);
+      throw error;
+    }
+  }
 }

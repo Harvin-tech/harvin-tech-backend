@@ -24,6 +24,11 @@ export default async function addCourseRoute(app: FastifyInstance) {
   ); // get course by chapter id Route: GET '/private/course/chapter/:chapterId'
   app.post('/enroll', enrollCourseSchema, CourseController.enrollCourse); // enroll course Route: POST '/private/course/enroll'
   app.get(
+    '/enroll/:courseId',
+    getEnrolledCourseSchema,
+    CourseController.getEnrolledStudentsForCourse
+  );
+  app.get(
     '/enroll/details',
     getEnrolledCourseSchema,
     CourseController.getEnrolledCourseDetails

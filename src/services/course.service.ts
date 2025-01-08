@@ -687,4 +687,89 @@ export class CourseService {
 
     return res;
   }
+
+  static async getEnrolledStudentsForCourse(
+    courseId: string,
+    query: getEnrolledCoursesQuery_I
+  ) {
+    const { page = 1, limit = 10, search } = query;
+    const skip = (page - 1) * limit;
+
+    const pipeline = [
+      // Step 1: Match enrollments for the specified course
+      {
+        $match: {
+          courseId: new mongoose.Types.ObjectId(courseId), // Match the courseId
+        },
+      },
+      // Step 2: Lookup to join the Users collection for user details
+      {
+        $lookup: {
+          from: 'users', // The name of the users collection
+          localField: 'userId', // Field in the enrollment collection
+          foreignField: '_id', // Field in the users collection
+          as: 'userDetails', // Output array for user details
+        },
+      },
+      // Step 3: Unwind userDetails to access individual user objects
+      {
+        $unwind: '$userDetails',
+      },
+      // Step 4: Apply search filter on user name and email
+      // {
+      //   $match: {
+      //     $or: [
+      //       { 'userDetails.name': { $regex: search, $options: 'i' } }, // Case-insensitive name search
+      //       { 'userDetails.email': { $regex: search, $options: 'i' } }, // Case-insensitive email search
+      //     ],
+      //   },
+      // },
+      // Step 5: Use $facet for pagination and total count
+      {
+        $facet: {
+          // Fetch the paginated results
+          data: [
+            { $skip: skip }, // Skip documents for the current page
+            { $limit: limit }, // Limit the number of documents per page
+            {
+              $project: {
+                _id: 0, // Exclude enrollment document ID
+                enrolledAt: 1,
+                userId: 1,
+                courseId: 1,
+                title: 1,
+                progress: 1,
+                user: {
+                  _id: '$userDetails._id',
+                  firstName: '$userDetails.firstName',
+                  middleName: '$userDetails.middleName',
+                  lastName: '$userDetails.lastName',
+                  email: '$userDetails.email',
+                  mobile: '$userDetails.mobile',
+                  dob: '$userDetails.dob',
+                  status: '$userDetails.status',
+                },
+              },
+            },
+          ],
+          // Get the total count of matching documents
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+    ];
+
+    // Execute the pipeline
+    const result = await Enrollment.aggregate(pipeline);
+
+    // Extract results
+    const enrolledStudents = result[0]?.data || [];
+    const totalCount = result[0]?.totalCount[0]?.total || 0;
+
+    const res = {
+      students: enrolledStudents,
+      totalPages: Math.ceil(totalCount / limit),
+      total: totalCount,
+    };
+    return res;
+  }
 }
