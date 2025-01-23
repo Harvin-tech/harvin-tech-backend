@@ -21,6 +21,7 @@ export interface lessons_I {
 }
 export interface createCourse_I {
   title: string;
+  slug: string;
   subTitle?: string | null;
   image?: string | null;
   category: string;

@@ -5,9 +5,13 @@ export const addCourseSchema: Schema = {
     tags: ['Courses'], // Categorized as Courses
     body: {
       type: 'object',
-      required: ['title', 'category', 'description', 'chapters'],
+      required: ['title', 'slug', 'category', 'description', 'chapters'],
       properties: {
         title: {
+          type: 'string',
+          description: 'The title of the course',
+        },
+        slug: {
           type: 'string',
           description: 'The title of the course',
         },
@@ -187,6 +191,33 @@ export const getCourseByIDSchema: Schema = {
         },
       },
       required: ['courseId'], // Fields required for getting a course by ID
+    },
+    query: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'integer',
+          enum: [0, 1, -1], // 0 = inactive, 1 = active, -1 = deleted
+          description: 'Filter courses by status',
+        },
+      },
+      additionalProperties: false, // Disallow unexpected query parameters
+    },
+  },
+};
+
+export const getCourseBySlugSchema: Schema = {
+  schema: {
+    tags: ['Courses'], // Categorized as Courses
+    params: {
+      type: 'object',
+      properties: {
+        slug: {
+          type: 'string',
+          description: 'The slug of the course to retrieve',
+        },
+      },
+      required: ['slug'], // Fields required for getting a course by ID
     },
     query: {
       type: 'object',

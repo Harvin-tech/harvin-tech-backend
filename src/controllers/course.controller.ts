@@ -68,6 +68,19 @@ export class CourseController {
     }
   }
 
+  static async getCourseBySlug(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { slug } = readParams<{ slug: string }>(request); // Extract userId from request params
+      const { status } = readQuery<{ status: number }>(request);
+
+      const course = await CourseService.getCourseBySlug(slug, status);
+
+      return sendResponse(reply, 200, 'Course fetched successfully', course);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async getChapterById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { chapterId } = readParams<{ chapterId: string }>(request); // Extract userId from request params

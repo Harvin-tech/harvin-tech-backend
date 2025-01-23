@@ -14,20 +14,37 @@ export class CourseService {
     const { chapters, ...restBody } = body;
 
     const isCourseExist = await Course.findOne({ title: restBody.title });
-    if (isCourseExist) {
+
+    const isSlugExist = await Course.findOne({ slug: restBody.slug });
+
+    if (isCourseExist || isSlugExist) {
       throw createError(
         BAD_REQUEST.name,
         BAD_REQUEST.status,
-        'Course with the same title already exists'
+        'Course with the same title or slug already exists'
       );
     }
 
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const course = await Course.create([{ ...restBody }], {
-        session,
-      });
+      const course = await Course.create(
+        [
+          {
+            ...restBody,
+            slug: restBody.slug
+              .toLowerCase()
+              .toLowerCase() // Convert to lowercase
+              .replace(/ /g, '-') // Replace spaces with hyphens
+              .replace(/[^\w-]+/g, '') // Remove invalid characters
+              .replace(/--+/g, '-') // Replace multiple hyphens with a single one
+              .replace(/^-+|-+$/g, ''),
+          },
+        ],
+        {
+          session,
+        }
+      );
 
       console.log('course--->', course);
       const courseId = course[0]._id;
@@ -167,6 +184,8 @@ export class CourseService {
                 _id: 1,
                 title: 1,
                 description: 1,
+                image: 1,
+                slug: 1,
                 price: 1,
                 type: 1,
                 category: 1,
@@ -307,6 +326,62 @@ export class CourseService {
     }
   }
 
+  static async getCourseBySlug(slug: string, status: number) {
+    try {
+      // Validate courseId
+
+      // Aggregation pipeline to fetch the course, its chapters, and lessons
+      const pipeline = [
+        // Step 1: Match the course by ID
+        {
+          $match: {
+            slug: slug,
+            ...(status ? { status } : {}),
+          },
+        },
+        // Step 2: Lookup to join Chapters with the Course
+        {
+          $lookup: {
+            from: 'chapters',
+            localField: '_id',
+            foreignField: 'courseId',
+            as: 'chapters',
+          },
+        },
+
+        // Step 3: Project the desired output format
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            slug: 1,
+            image: 1,
+            price: 1,
+            category: 1,
+            status: 1,
+            // chapters: {
+            //   $filter: {
+            //     input: '$chapters', // The chapters array
+            //     as: 'chapter', // Temporary variable name for each chapter
+            //     cond: { $eq: ['$$chapter.status', 1] }, // Condition: status must be 1
+            //   },
+            // },
+            chapters: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      ];
+
+      const courseData = await Course.aggregate(pipeline);
+      console.log('courseData', courseData);
+
+      return courseData && courseData.length > 0 ? courseData[0] : null;
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+      throw error;
+    }
+  }
   static async getChapterById(chapterId: string, status: number) {
     try {
       // Validate chapterId

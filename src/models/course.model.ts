@@ -3,6 +3,7 @@ import { Schema, Types } from 'mongoose';
 export const courseSchema = new Schema(
   {
     title: { type: String, required: true, unique: true },
+    slug: { type: String, required: true, unique: true },
     subTitle: { type: String },
     image: { type: String },
     category: { type: String, required: true },
