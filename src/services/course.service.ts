@@ -116,7 +116,7 @@ export class CourseService {
   static async getAllCourse(query: getCourse_I) {
     const {
       page = 1,
-      limit = 10,
+      limit = 50,
       search,
       status,
       category,
